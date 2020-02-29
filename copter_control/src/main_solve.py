@@ -111,9 +111,9 @@ class DroneController:
             e = Empty()
             self.drone_takeoff_pub.publish(e)
             self.code += 1
-            self.dx = self.drone_state_position.position.x
-            self.dy = self.drone_state_position.position.y
-            self.dz = self.drone_state_position.position.z
+            self.dx = self.drone_state_position.x
+            self.dy = self.drone_state_position.y
+            self.dz = self.drone_state_position.z
             print('Takeoff OK', self.dx, self.dy, self.dz)
         
         if self.code == 1:
@@ -129,6 +129,6 @@ class DroneController:
                 self.counter += 1
             else:
                 e = Empty()
+                print("Landing...")
                 self.drone_land_pub.publish(e)
-
-
+                self.counter += 1
