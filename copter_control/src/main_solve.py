@@ -47,9 +47,6 @@ class DroneController:
         4 — задержка, 5 — изменение ориентации, 6 — задержка, 7 — посадка"""
         self.code = -1
 
-        "Camera features for feedback"
-        self.camera_features = CameraFeatures()
-
     def fly_params_callback(self, msg):
         """
         Fly params callback
