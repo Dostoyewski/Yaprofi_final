@@ -54,7 +54,7 @@ class DroneController:
         """
         lock.acquire()
 
-        self.h = msg.h
+        self.h = msg.h + 0.3
         self.dh = msg.dh
         self.phi = msg.phi
 
@@ -93,7 +93,7 @@ class DroneController:
 
     def calc_velocity(self, x):
         '''calc velocity'''
-        vel = -0.25*x**3 - 0.3*sin(x)
+        vel = -0.4*x**3 - 0.3*sin(x)
         if vel > 0.5:
             vel = 0.5
         if vel < -0.5:
@@ -115,8 +115,9 @@ class DroneController:
         
         if self.code == 1:
             vel = Twist()
-            vel.linear.z = self.calc_velocity(self.drone_state_position.z - self.h)
-            if abs(vel.linear.z) < 0.05:
+            vel.linear.z = self.calc_velocity(self.drone_state_position.z + self.h)
+            print('climbing', self.drone_state_position.z, self.h)
+            if abs(vel.linear.z) < 0.1:
                 vel.linear.z = 0
                 self.code += 1
             self.drone_target_vel_pub.publish(vel)
@@ -125,6 +126,21 @@ class DroneController:
             if self.counter < 500:
                 self.counter += 1
             else:
+                self.code += 1
+
+        if self.code == 3:
+            vel = Twist()
+            vel.angular.z = self.calc_velocity(self.drone_state_orientation.z - self.phi)
+            if abs(vel.linear.z) < 0.1:
+                vel.angular.z = 0
+                self.code += 1
+            self.drone_target_vel_pub.publish(vel)
+
+        if self.code == 4:
+            if self.counter < 500:
+                self.counter += 1
+            else:
+                self.code += 1
                 e = Empty()
                 print("Landing...")
                 self.drone_land_pub.publish(e)
