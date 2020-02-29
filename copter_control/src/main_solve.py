@@ -39,6 +39,9 @@ class DroneController:
         self.dh = 0
         self.phi = 0
 
+        "Displacement"
+        self.dx, self.dy, self.dz = 0, 0, 0
+
         "fly etape"
         """ 0 — взлет, 1 — набор высоты, 2 — задержка, 3 — изменение высоты,
         4 — задержка, 5 — изменение ориентации, 6 — задержка, 7 — посадка"""
@@ -60,6 +63,8 @@ class DroneController:
 
         "Starting process"
         self.code = 0
+
+        self.counter = 0
 
         print("Fly parametes:", self.h, self.dh, self.phi)
 
@@ -97,15 +102,21 @@ class DroneController:
     def update(self, dt, t):
         """ Update control signal for drone """
 
-        if self.code != -1:
-            self.pos_x = 0
-            self.pos_y = 0
-
-                    
-            pose = Pose()
-            pose.position.x = self.pos_x
-            pose.position.y = self.pos_y
-            pose.position.z = self.Z0   # don't change this. It sets from judge node
-            self.drone_target_pose_pub.publish(pose)
+        if self.code == 0:
+            "Takeoff function"
+            e = Empty()
+            self.drone_takeoff_pub.publish(e)
+            self.code += 1
+            self.dx = self.drone_state_position.position.x
+            self.dy = self.drone_state_position.position.y
+            self.dz = self.drone_state_position.position.z
+            print('Takeoff OK', self.dx, self.dy, self.dz)
+        
+        if self.code == 1:
+            if self.counter < 500:
+                self.counter += 1
+            else:
+                e = Empty()
+                self.drone_land_pub.publish(e)
 
 
