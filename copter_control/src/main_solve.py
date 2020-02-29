@@ -22,7 +22,7 @@ class DroneController:
 
         "ROS stuff"
         self.drone_odom_sub = rospy.Subscriber('/tello/odom', Odometry, self.drone_odom_callback)
-        self.drone_target_pose_pub = rospy.Publisher('/tello/cmd_vel', Twist, queue_size=1, latch=True)
+        self.drone_target_vel_pub = rospy.Publisher('/tello/cmd_vel', Twist, queue_size=1, latch=True)
         self.drone_takeoff_pub = rospy.Publisher('/tello/takeoff', Empty, queue_size=1, latch=True)
         self.drone_estop_pub = rospy.Publisher('/tello/emergency', Empty, queue_size=1, latch=True)
         self.drone_land_pub = rospy.Publisher('/tello/land', Empty, queue_size=1, latch=True)
@@ -94,6 +94,15 @@ class DroneController:
         e = Empty()
         self.drone_estop_pub.publish(e)
 
+    def calc_velocity(self, x):
+        '''calc velocity'''
+        vel = -0.25*x**3 - 0.3*sin(x)
+        if vel > 0.5:
+            vel = 0.5
+        if vel < -0.5:
+            vel = -0.5
+        return vel
+
     def update(self, dt, t):
         """ Update control signal for drone """
 
@@ -108,6 +117,14 @@ class DroneController:
             print('Takeoff OK', self.dx, self.dy, self.dz)
         
         if self.code == 1:
+            vel = Twist()
+            vel.linear.z = self.calc_velocity(self.drone_state_position.z - self.h)
+            if abs(vel.linear.z) < 0.05:
+                vel.linear.z = 0
+                self.code += 1
+            self.drone_target_vel_pub.publish(vel)
+
+        if self.code == 2:
             if self.counter < 500:
                 self.counter += 1
             else:
