@@ -11,7 +11,7 @@ from std_msgs.msg import Empty, Float32
 from geometry_msgs.msg import Pose, Point, Vector3
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from copter_control.msg import CopterTarget
+from bac_task.msg import CopterTarget
 
 lock = threading.Lock()
 
