@@ -7,6 +7,8 @@ import sys
 import tf.transformations as tftr
 from numpy import *
 
+import datetime
+
 from std_msgs.msg import Empty, Float32
 from geometry_msgs.msg import Pose, Point, Vector3
 from geometry_msgs.msg import Twist
@@ -15,6 +17,7 @@ from bac_task.msg import CopterTarget
 
 lock = threading.Lock()
 
+theta0=self.drone_controller.odometry.pose.pose.position[6]
 
 class DroneController:
 
@@ -47,6 +50,24 @@ class DroneController:
         4 — задержка, 5 — изменение ориентации, 6 — задержка, 7 — посадка"""
         self.code = -1
 
+    #class PIDOS:
+    def init(self,last_error,P,I,D,PID,Kp,Ki,Kd):
+        self.last_error = last_error
+        self.P = P
+        self.I = I
+        self.D = D
+        self.PID = PID
+        self.Kp = Kp
+        self.Ki = Ki
+        self.Kd = Kd
+        
+    def PIDs(self,setpoint,currentpoint):
+        P = (setpoint - currentpoint)
+        I = (I + (setpoint - currentpoint) * INTERVAL)
+        D = ((setpoint - currentpoint) - last_error) / INTERVAL
+        last_error = setpoint- currentpoint
+        PID = (Kp * P) + (Ki * I) + (Kd * D)
+        return PID
     def fly_params_callback(self, msg):
         """
         Fly params callback
