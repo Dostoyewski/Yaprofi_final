@@ -91,13 +91,8 @@ class DroneController:
 
     def stop(self):
         """ Reset the robot """
-        pose = Pose()
-        pose.position.x = 0
-        pose.position.y = 0
-        pose.position.z = 0
-        self.drone_target_pose_pub.publish(pose)
-        self.drone_odom_sub.unregister()
-        self.drone_target_pose_pub.unregister()
+        e = Empty()
+        self.drone_estop_pub.publish(e)
 
     def update(self, dt, t):
         """ Update control signal for drone """
